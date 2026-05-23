@@ -1238,10 +1238,22 @@ h2 {
 
   .mobile-menu .brand {
     color: var(--white);
+    flex: 0 0 auto;
+    max-width: none;
   }
 
-  .mobile-menu .brand strong {
-    color: var(--white);
+  .mobile-menu-logo {
+    background: var(--white);
+    border-radius: 6px;
+    height: 128px;
+    padding: 8px;
+    position: relative;
+    width: 128px;
+    z-index: 2;
+  }
+
+  .mobile-menu-logo img {
+    filter: none;
   }
 
   .menu-close {
@@ -1282,19 +1294,19 @@ h2 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     display: flex;
     font-family: "Barlow Condensed", Impact, sans-serif;
-    font-size: 34px;
+    font-size: 26px;
     font-weight: 800;
     gap: 14px;
     letter-spacing: 0;
     line-height: 1;
-    padding: 18px 0;
+    padding: 14px 0;
     text-transform: uppercase;
   }
 
   .mobile-nav a span {
     color: #f0a2aa;
     font-family: "Inter", Arial, sans-serif;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     min-width: 24px;
   }
