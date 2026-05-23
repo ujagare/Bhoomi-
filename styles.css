@@ -62,6 +62,26 @@ img {
   max-width: 100%;
 }
 
+.service-card,
+.project-card,
+.trust-photo,
+.feature-grid > div,
+.industry-row > div,
+.why-list li,
+.build-card,
+.testimonial-marquee,
+.footer-grid > div {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: opacity, transform;
+}
+
+.service-card > img,
+.project-card img,
+.trust-photo img {
+  will-change: clip-path, opacity, transform;
+}
+
 .site-header {
   align-items: center;
   background: var(--white);
@@ -1010,15 +1030,15 @@ h2 {
 
 .footer-contact {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .footer-contact p {
-  align-items: flex-start;
+  align-items: center;
   color: #f3e9eb;
   display: flex;
-  gap: 13px;
-  line-height: 1.55;
+  gap: 16px;
+  line-height: 1.45;
   margin: 0;
 }
 
@@ -1037,21 +1057,21 @@ h2 {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 10px 24px rgba(0, 0, 0, 0.16);
   color: #f6c56f;
   display: inline-flex;
-  flex: 0 0 40px;
-  height: 40px;
+  flex: 0 0 42px;
+  height: 42px;
   justify-content: center;
-  margin-top: 2px;
-  width: 40px;
+  margin-top: 0;
+  width: 42px;
 }
 
 .contact-badge svg {
   fill: none;
-  height: 20px;
+  height: 19px;
   stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.9;
-  width: 20px;
+  width: 19px;
 }
 
 .socials {
@@ -1484,12 +1504,14 @@ h2 {
 
   .feature-grid div,
   .hero-stats div {
-    grid-template-columns: 64px 1fr;
+    align-items: center;
+    grid-template-columns: 72px minmax(0, 1fr);
   }
 
   .feature-grid span,
   .contact-icon,
   .hero-stats span {
+    flex: 0 0 62px;
     height: 62px;
     width: 62px;
   }
@@ -1544,7 +1566,22 @@ h2 {
 
   .hero-stats div {
     min-height: auto;
-    padding: 20px;
+    gap: 4px 18px;
+    padding: 20px 18px;
+  }
+
+  .hero-stats span {
+    grid-row: 1 / span 2;
+    justify-self: center;
+  }
+
+  .hero-stats strong,
+  .hero-stats p {
+    align-self: center;
+  }
+
+  .hero-stats div:first-child span img {
+    transform: translateX(-12px);
   }
 
   .industries {
@@ -1686,5 +1723,11 @@ h2 {
 
   .footer-contact p {
     font-size: 14px;
+    gap: 14px;
+  }
+
+  .footer-contact p > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }
