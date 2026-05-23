@@ -1466,7 +1466,11 @@ h2 {
   }
 
   .card-body {
-    padding: 34px 22px 24px;
+    padding: 72px 22px 24px;
+  }
+
+  .service-card .card-body h3 {
+    margin-top: 0;
   }
 
   .card-body h3,
