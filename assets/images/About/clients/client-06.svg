@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" role="img" aria-label="Client logo placeholder">
+  <rect width="240" height="120" rx="14" fill="#ffffff"/>
+  <path d="M60 78 88 38h24L84 78H60Zm36 0 28-40h10L106 78H96Z" fill="#8d1f2a"/>
+  <path d="M127 44h60v10h-60V44Zm0 18h48v8h-48v-8Zm0 17h36v6h-36v-6Z" fill="#111820"/>
+</svg>
