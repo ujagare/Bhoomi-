@@ -9,9 +9,9 @@
         loader.setAttribute("aria-live", "polite");
         loader.innerHTML = `
           <div class="page-loader-inner">
-            <svg id="svgCircleProgress1" class="svgloader" height="160" width="160" viewBox="0 0 160 160" aria-hidden="true">
-              <circle class="svgloader-track" cx="80" cy="80" r="58" stroke-width="11" fill="transparent"></circle>
-              <circle id="svgCircleProgressPath1" class="svgloader-path" cx="80" cy="80" r="58" stroke-width="11" fill="transparent" transform="rotate(-90, 80, 80)"></circle>
+            <svg id="svgCircleProgress1" class="svgloader" height="220" width="220" viewBox="0 0 220 220" aria-hidden="true">
+              <circle class="svgloader-track" cx="110" cy="110" r="80" stroke-width="14" fill="transparent"></circle>
+              <circle id="svgCircleProgressPath1" class="svgloader-path" cx="110" cy="110" r="80" stroke-width="14" fill="transparent" transform="rotate(-90, 110, 110)"></circle>
             </svg>
             <div id="percent" class="page-loader-percent">0%</div>
           </div>
@@ -23,7 +23,7 @@
         const progressPath = loader.querySelector("#svgCircleProgressPath1");
         const percentElement = loader.querySelector("#percent");
         const duration = 2600;
-        const circumference = 2 * Math.PI * 58;
+        const circumference = 2 * Math.PI * 80;
         let progress = 0;
         let isLoaded = false;
         let animationFrame = 0;
@@ -50,7 +50,7 @@
 
           window.setTimeout(() => {
             loader.remove();
-          }, 820);
+          }, 1180);
         }
 
         function easeOutCubic(value) {

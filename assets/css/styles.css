@@ -63,29 +63,33 @@ body.has-page-loader {
   inset: 0;
   justify-content: center;
   position: fixed;
-  transition: opacity 0.56s ease, visibility 0.56s ease;
+  transition:
+    opacity 0.7s ease,
+    transform 0.95s cubic-bezier(0.76, 0, 0.24, 1),
+    visibility 0.7s ease;
   z-index: 9999;
 }
 
 .page-loader.is-hidden {
   opacity: 0;
   pointer-events: none;
+  transform: translateY(-105%);
   visibility: hidden;
 }
 
 .page-loader-inner {
   align-items: center;
   display: grid;
-  height: 176px;
+  height: 242px;
   justify-items: center;
   position: relative;
-  width: 176px;
+  width: 242px;
 }
 
 .svgloader {
-  filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.28));
-  height: 160px;
-  width: 160px;
+  filter: drop-shadow(0 20px 42px rgba(0, 0, 0, 0.32));
+  height: 220px;
+  width: 220px;
 }
 
 .svgloader-track {
@@ -101,33 +105,33 @@ body.has-page-loader {
 .page-loader-percent {
   color: #fff3df;
   font-family: Arial, sans-serif;
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 800;
-  left: 55px;
+  left: 88px;
   letter-spacing: 0;
   line-height: 1;
   position: absolute;
   text-align: center;
   text-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
-  top: 77px;
+  top: 105px;
   width: 66px;
 }
 
 @media (max-width: 640px) {
   .page-loader-inner {
-    height: 152px;
-    width: 152px;
+    height: 190px;
+    width: 190px;
   }
 
   .svgloader {
-    height: 138px;
-    width: 138px;
+    height: 172px;
+    width: 172px;
   }
 
   .page-loader-percent {
-    font-size: 20px;
-    left: 43px;
-    top: 66px;
+    font-size: 24px;
+    left: 62px;
+    top: 83px;
   }
 }
 
