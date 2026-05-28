@@ -24,16 +24,21 @@ Open `index.html` in a browser to view the site.
 
 ## Resend Contact Form
 
-The contact form submits to the serverless endpoint at `api/contact.js`, which sends enquiries to `info@bhoomigunitingwork.com` using Resend. The Resend API key must stay server-side in Vercel environment variables and must never be added to frontend files.
+The contact form submits to the serverless endpoint at `api/contact.js`, saves enquiries in Supabase, and sends email notifications to `info@bhoomigunitingwork.com` using Resend. Secret keys must stay server-side in Vercel environment variables and must never be added to frontend files.
 
 1. Verify `bhoomigunitingwork.com` in Resend.
 2. Create a Resend API key with send access.
-3. For Vercel, add these Environment Variables:
+3. In Supabase SQL Editor, run `supabase/contact_messages.sql`.
+4. In Supabase Dashboard > Project Settings > Data API, make sure the `public` schema and `contact_messages` table are exposed to the Data API.
+5. For Vercel, add these Environment Variables:
    - `RESEND_API_KEY`
    - `RESEND_FROM_EMAIL` such as `Bhoomi Website <website@bhoomigunitingwork.com>`
    - `CONTACT_TO_EMAIL` as `info@bhoomigunitingwork.com`
-4. Keep the Build Command as `npm run build`.
-5. Submit the form from `contact.html` and confirm the enquiry arrives at `info@bhoomigunitingwork.com`.
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_CONTACT_TABLE` as `contact_messages`
+6. Keep the Build Command as `npm run build`.
+7. Submit the form from `contact.html` and confirm the enquiry appears in Supabase and arrives at `info@bhoomigunitingwork.com`.
 
 The API route validates required fields, keeps a honeypot spam field, rate-limits repeated submissions per server instance, and sets the visitor's email as `reply_to` when provided.
 
@@ -50,8 +55,11 @@ Add these Environment Variables for Production and Preview:
 - `RESEND_API_KEY`
 - `RESEND_FROM_EMAIL`
 - `CONTACT_TO_EMAIL`
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_CONTACT_TABLE`
 
-Do not expose `RESEND_API_KEY` in client-side JavaScript.
+Do not expose `RESEND_API_KEY` in client-side JavaScript. Only use the Supabase publishable key for contact form inserts, not a service role key.
 
 ## Google Search Console
 

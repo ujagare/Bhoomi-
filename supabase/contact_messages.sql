@@ -21,4 +21,5 @@ create policy "Anyone can submit contact messages"
   with check (true);
 
 grant insert on public.contact_messages to anon;
+grant usage on sequence public.contact_messages_id_seq to anon;
 grant all on public.contact_messages to service_role;

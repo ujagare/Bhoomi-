@@ -226,6 +226,67 @@ function buildEmail(submission, req) {
   return payload;
 }
 
+function getSupabaseConfig() {
+  const url = String(process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+  const key = String(
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      "",
+  );
+  const table = String(
+    process.env.SUPABASE_CONTACT_TABLE || "contact_messages",
+  );
+
+  if (!url || !key) {
+    return null;
+  }
+
+  if (!/^[A-Za-z0-9_]+$/.test(table)) {
+    throw new Error("Invalid Supabase contact table name.");
+  }
+
+  return { url, key, table };
+}
+
+async function saveContactMessage(submission, req) {
+  const config = getSupabaseConfig();
+
+  if (!config) {
+    console.warn("Supabase is not configured; skipping contact message save.");
+    return { skipped: true };
+  }
+
+  const payload = {
+    name: submission.name,
+    email: submission.email || null,
+    phone: submission.phone,
+    service: submission.service,
+    message: submission.message,
+    page_url: submission.pageUrl || null,
+    user_agent: cleanText(req.headers["user-agent"], 500) || null,
+  };
+  const response = await fetch(
+    `${config.url}/rest/v1/${encodeURIComponent(config.table)}`,
+    {
+      method: "POST",
+      headers: {
+        apikey: config.key,
+        Authorization: `Bearer ${config.key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Supabase insert failed: ${response.status} ${errorText}`);
+  }
+
+  return { skipped: false };
+}
+
 module.exports = async function contactHandler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -274,6 +335,8 @@ module.exports = async function contactHandler(req, res) {
   }
 
   try {
+    await saveContactMessage(result.submission, req);
+
     const resendResponse = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
@@ -295,10 +358,10 @@ module.exports = async function contactHandler(req, res) {
 
     return sendJson(res, 200, { ok: true });
   } catch (error) {
-    console.error("Contact email error:", error);
+    console.error("Contact form error:", error);
     return sendJson(res, 502, {
       ok: false,
-      message: "Email could not be sent.",
+      message: "Contact request could not be saved or sent.",
     });
   }
 };
