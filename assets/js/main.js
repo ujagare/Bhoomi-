@@ -1,4 +1,4 @@
-﻿const heroTexts = [
+const heroTexts = [
         {
           eyebrow: "Engineering Safety. Building Trust.",
           title: "Strong Foundations.",
@@ -133,6 +133,92 @@
         }
       });
 
+      const contactForm = document.querySelector(".contact-form");
+
+      if (contactForm) {
+        const status = contactForm.querySelector(".form-status");
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        const submitLabel = submitButton ? submitButton.innerHTML : "";
+
+        function setContactStatus(type, message) {
+          if (!status) {
+            return;
+          }
+
+          status.textContent = message;
+          status.className = `form-status ${type ? `is-${type}` : ""}`.trim();
+        }
+
+        function trimValue(formData, key, maxLength) {
+          const value = String(formData.get(key) || "").trim();
+          return value ? value.slice(0, maxLength) : "";
+        }
+
+        contactForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          if (!contactForm.reportValidity()) {
+            return;
+          }
+
+          const formData = new FormData(contactForm);
+
+          if (String(formData.get("website") || "").trim()) {
+            contactForm.reset();
+            return;
+          }
+
+          const payload = {
+            name: trimValue(formData, "name", 120),
+            email: trimValue(formData, "email", 180),
+            phone: trimValue(formData, "phone", 40),
+            service: trimValue(formData, "service", 120),
+            message: trimValue(formData, "message", 2000),
+            website: trimValue(formData, "website", 120),
+            page_url: window.location.href.slice(0, 500),
+          };
+
+          if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = "Sending...";
+          }
+          setContactStatus("", "");
+
+          try {
+            const response = await fetch("/api/contact", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok || result.ok !== true) {
+              throw new Error(result.message || "Contact request failed");
+            }
+
+            contactForm.reset();
+            setContactStatus(
+              "success",
+              "Thank you. Your message has been sent successfully.",
+            );
+          } catch (error) {
+            setContactStatus(
+              "error",
+              "Sorry, we could not send your message right now. Please call or WhatsApp us.",
+            );
+            console.error("Contact form error:", error);
+          } finally {
+            if (submitButton) {
+              submitButton.disabled = false;
+              submitButton.innerHTML = submitLabel;
+            }
+          }
+        });
+      }
+
       const galleryFilters = document.querySelectorAll("[data-filter]");
       const galleryItems = document.querySelectorAll(
         ".gallery-card, .gallery-video, .project-card-panel",
@@ -184,6 +270,8 @@
             return;
           }
 
+          const hasTrigger = document.querySelector(options.trigger);
+
           gsap.from(items, {
             autoAlpha: 0,
             duration: options.duration || 0.9,
@@ -193,7 +281,7 @@
             transformOrigin: "50% 100%",
             y: options.y || 46,
             scrollTrigger: {
-              trigger: options.trigger || items[0],
+              trigger: hasTrigger ? options.trigger : items[0],
               start: options.start || "top 82%",
               toggleActions: "play none none reverse",
             },
@@ -292,7 +380,111 @@
           },
         );
 
-        imageReveal(".service-card > img, .project-card img, .trust-photo img");
+        // About Page specific animations
+        revealGroup(".about-strengths > div", {
+          duration: 0.8,
+          stagger: 0.1,
+          trigger: ".about-strengths",
+          y: 30,
+        });
+        revealGroup(".about-copy-panel > *", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".about-copy-panel",
+          y: 24,
+        });
+        revealGroup(".about-feature > *", {
+          duration: 0.8,
+          stagger: 0.1,
+          trigger: ".about-feature",
+          y: 24,
+        });
+        revealGroup(".about-service-list > article", {
+          duration: 0.9,
+          stagger: 0.12,
+          trigger: ".about-service-list",
+          y: 40,
+        });
+        revealGroup(".vision-card > article", {
+          duration: 0.85,
+          stagger: 0.1,
+          trigger: ".vision-card",
+          y: 30,
+        });
+        revealGroup(".leader-card", {
+          duration: 0.9,
+          stagger: 0.12,
+          trigger: ".leader-grid",
+          y: 40,
+        });
+        revealGroup(".about-facts > div > article", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".about-facts",
+          y: 24,
+        });
+        revealGroup(".about-why-grid > article", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".about-why-grid",
+          y: 30,
+        });
+        revealGroup(".trusted-logo-card", {
+          duration: 0.8,
+          stagger: 0.06,
+          trigger: ".trusted-logo-grid",
+          y: 24,
+        });
+        revealGroup(".infra-grid > article", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".infra-grid",
+          y: 30,
+        });
+
+        // Service Page specific animations
+        revealGroup(".service-detail-card", {
+          duration: 0.9,
+          stagger: 0.14,
+          trigger: ".service-detail-grid",
+          y: 40,
+        });
+        revealGroup(".process-row > article", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".process-row",
+          y: 30,
+        });
+        revealGroup(".service-why-grid > article", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".service-why-grid",
+          y: 30,
+        });
+
+        // Project Page specific animations
+        revealGroup(".project-card-panel", {
+          duration: 0.85,
+          stagger: 0.1,
+          trigger: ".project-card-grid",
+          y: 34,
+        });
+        revealGroup(".project-impact > div", {
+          duration: 0.8,
+          stagger: 0.08,
+          trigger: ".project-impact",
+          y: 24,
+        });
+
+        // Gallery Page specific animations
+        revealGroup(".gallery-card, .gallery-video", {
+          duration: 0.8,
+          stagger: 0.06,
+          trigger: ".gallery-section",
+          y: 30,
+        });
+
+        imageReveal(".service-card > img, .project-card img, .trust-photo img, .about-feature img, .about-service-list img, .leader-card img, .infra-grid img, .service-detail-image img, .project-card-panel img, .gallery-card img");
 
         gsap.utils.toArray(".floating-icon, .contact-badge").forEach((icon) => {
           gsap.from(icon, {
@@ -310,7 +502,7 @@
 
         mm.add("(min-width: 821px)", () => {
           gsap.utils
-            .toArray(".service-card > img, .project-card img")
+            .toArray(".service-card > img, .project-card img, .service-detail-image img, .project-card-panel img, .gallery-card img")
             .forEach((image) => {
               gsap.to(image, {
                 ease: "none",
@@ -325,16 +517,18 @@
               });
             });
 
-          gsap.to(".trust-photo", {
-            ease: "none",
-            yPercent: -8,
-            scrollTrigger: {
-              trigger: ".trust-band",
-              scrub: 0.8,
-              start: "top bottom",
-              end: "bottom top",
-            },
-          });
+          if (document.querySelector(".trust-photo")) {
+            gsap.to(".trust-photo", {
+              ease: "none",
+              yPercent: -8,
+              scrollTrigger: {
+                trigger: ".trust-band",
+                scrub: 0.8,
+                start: "top bottom",
+                end: "bottom top",
+              },
+            });
+          }
         });
 
         ScrollTrigger.refresh();
@@ -395,8 +589,7 @@
           );
         }
 
-        if (document.querySelector(".hero")) {
-          setupScrollAnimations();
-        }
+        // Run scroll trigger animations unconditionally on all pages
+        setupScrollAnimations();
       }
 

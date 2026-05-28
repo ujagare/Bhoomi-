@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "node --check assets/js/main.js && node --check api/contact.js",
+    "check": "node --check assets/js/main.js && node --check api/contact.js"
+  }
+}
