@@ -8740,6 +8740,9 @@ h2 {
   color: #f6c56f !important;
   flex: 0 0 34px !important;
   height: 34px !important;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
   width: 34px !important;
 }
 
