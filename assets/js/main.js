@@ -9,9 +9,9 @@
         loader.setAttribute("aria-live", "polite");
         loader.innerHTML = `
           <div class="page-loader-inner">
-            <svg id="svgCircleProgress1" class="svgloader" height="100" width="100" viewBox="0 0 100 100" aria-hidden="true">
-              <circle class="svgloader-track" cx="50" cy="50" r="35" stroke-width="9" fill="transparent"></circle>
-              <circle id="svgCircleProgressPath1" class="svgloader-path" cx="50" cy="50" r="35" stroke-width="9" fill="transparent" transform="rotate(-90, 50, 50)"></circle>
+            <svg id="svgCircleProgress1" class="svgloader" height="160" width="160" viewBox="0 0 160 160" aria-hidden="true">
+              <circle class="svgloader-track" cx="80" cy="80" r="58" stroke-width="11" fill="transparent"></circle>
+              <circle id="svgCircleProgressPath1" class="svgloader-path" cx="80" cy="80" r="58" stroke-width="11" fill="transparent" transform="rotate(-90, 80, 80)"></circle>
             </svg>
             <div id="percent" class="page-loader-percent">0%</div>
           </div>
@@ -22,10 +22,12 @@
 
         const progressPath = loader.querySelector("#svgCircleProgressPath1");
         const percentElement = loader.querySelector("#percent");
-        const circumference = 2 * Math.PI * 35;
+        const duration = 2600;
+        const circumference = 2 * Math.PI * 58;
         let progress = 0;
         let isLoaded = false;
         let animationFrame = 0;
+        let startedAt = 0;
 
         progressPath.style.strokeDasharray = circumference;
         progressPath.style.strokeDashoffset = circumference;
@@ -51,13 +53,22 @@
           }, 820);
         }
 
-        function tick() {
-          const target = isLoaded ? 100 : 92;
-          const step = isLoaded ? 10 : Math.max((target - progress) * 0.045, 0.18);
+        function easeOutCubic(value) {
+          return 1 - Math.pow(1 - value, 3);
+        }
 
-          setProgress(progress + step);
+        function tick(time) {
+          if (!startedAt) {
+            startedAt = time;
+          }
 
-          if (progress >= 100) {
+          const elapsed = time - startedAt;
+          const timedProgress = easeOutCubic(Math.min(elapsed / duration, 1)) * 100;
+          const cappedProgress = isLoaded ? timedProgress : Math.min(timedProgress, 92);
+
+          setProgress(cappedProgress);
+
+          if (progress >= 100 && isLoaded) {
             hideLoader();
             return;
           }
@@ -77,7 +88,7 @@
           if (!isLoaded) {
             isLoaded = true;
           }
-        }, 4500);
+        }, 3000);
 
         setProgress(0);
         animationFrame = window.requestAnimationFrame(tick);
