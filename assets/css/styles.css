@@ -64,16 +64,14 @@ body.has-page-loader {
   justify-content: center;
   position: fixed;
   transition:
-    opacity 0.7s ease,
-    transform 0.95s cubic-bezier(0.76, 0, 0.24, 1),
-    visibility 0.7s ease;
+    transform 1.05s cubic-bezier(0.76, 0, 0.24, 1),
+    visibility 0s linear 1.05s;
   z-index: 9999;
 }
 
 .page-loader.is-hidden {
-  opacity: 0;
   pointer-events: none;
-  transform: translateY(-105%);
+  transform: translateY(-100%);
   visibility: hidden;
 }
 
