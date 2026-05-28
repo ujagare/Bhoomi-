@@ -8757,6 +8757,8 @@ h2 {
 .footer .contact-badge svg path,
 .footer .contact-badge svg rect,
 .footer .contact-badge svg circle {
+  fill: none !important;
+  stroke: currentColor !important;
   vector-effect: non-scaling-stroke;
 }
 
