@@ -52,6 +52,66 @@ body.menu-open {
   overflow: hidden;
 }
 
+body.has-page-loader {
+  overflow: hidden;
+}
+
+.page-loader {
+  align-items: center;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, rgba(247, 247, 246, 0.96) 48%, rgba(239, 231, 224, 0.94) 100%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  transition: opacity 0.48s ease, visibility 0.48s ease;
+  z-index: 9999;
+}
+
+.page-loader.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.page-loader-inner {
+  align-items: center;
+  display: grid;
+  height: 112px;
+  justify-items: center;
+  position: relative;
+  width: 112px;
+}
+
+.svgloader {
+  filter: drop-shadow(0 12px 22px rgba(77, 11, 18, 0.16));
+  height: 100px;
+  width: 100px;
+}
+
+.svgloader-track {
+  stroke: rgba(141, 31, 42, 0.12);
+}
+
+.svgloader-path {
+  stroke: #990000;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.16s linear;
+}
+
+.page-loader-percent {
+  color: #4d0b12;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  left: 23px;
+  line-height: 1;
+  position: absolute;
+  text-align: center;
+  top: 49px;
+  width: 66px;
+}
+
 a {
   color: inherit;
   text-decoration: none;

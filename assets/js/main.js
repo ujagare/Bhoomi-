@@ -1,4 +1,93 @@
-const heroTexts = [
+      function initPageLoader() {
+        if (!document.body) {
+          return;
+        }
+
+        const loader = document.createElement("div");
+        loader.className = "page-loader";
+        loader.setAttribute("role", "status");
+        loader.setAttribute("aria-live", "polite");
+        loader.innerHTML = `
+          <div class="page-loader-inner">
+            <svg id="svgCircleProgress1" class="svgloader" height="100" width="100" viewBox="0 0 100 100" aria-hidden="true">
+              <circle class="svgloader-track" cx="50" cy="50" r="35" stroke-width="9" fill="transparent"></circle>
+              <circle id="svgCircleProgressPath1" class="svgloader-path" cx="50" cy="50" r="35" stroke-width="9" fill="transparent" transform="rotate(-90, 50, 50)"></circle>
+            </svg>
+            <div id="percent" class="page-loader-percent">0%</div>
+          </div>
+        `;
+
+        document.body.prepend(loader);
+        document.body.classList.add("has-page-loader");
+
+        const progressPath = loader.querySelector("#svgCircleProgressPath1");
+        const percentElement = loader.querySelector("#percent");
+        const circumference = 2 * Math.PI * 35;
+        let progress = 0;
+        let isLoaded = false;
+        let animationFrame = 0;
+
+        progressPath.style.strokeDasharray = circumference;
+        progressPath.style.strokeDashoffset = circumference;
+
+        function setProgress(value) {
+          progress = Math.max(progress, Math.min(value, 100));
+          progressPath.style.strokeDashoffset =
+            circumference - (circumference * progress) / 100;
+          percentElement.textContent = `${Math.round(progress)}%`;
+          percentElement.style.opacity = String(Math.max(progress / 100, 0.2));
+        }
+
+        function hideLoader() {
+          setProgress(100);
+
+          window.setTimeout(() => {
+            loader.classList.add("is-hidden");
+            document.body.classList.remove("has-page-loader");
+          }, 260);
+
+          window.setTimeout(() => {
+            loader.remove();
+          }, 820);
+        }
+
+        function tick() {
+          const target = isLoaded ? 100 : 92;
+          const step = isLoaded ? 10 : Math.max((target - progress) * 0.045, 0.18);
+
+          setProgress(progress + step);
+
+          if (progress >= 100) {
+            hideLoader();
+            return;
+          }
+
+          animationFrame = window.requestAnimationFrame(tick);
+        }
+
+        window.addEventListener(
+          "load",
+          () => {
+            isLoaded = true;
+          },
+          { once: true },
+        );
+
+        window.setTimeout(() => {
+          if (!isLoaded) {
+            isLoaded = true;
+          }
+        }, 4500);
+
+        setProgress(0);
+        animationFrame = window.requestAnimationFrame(tick);
+
+        return () => window.cancelAnimationFrame(animationFrame);
+      }
+
+      initPageLoader();
+
+      const heroTexts = [
         {
           eyebrow: "Engineering Safety. Building Trust.",
           title: "Strong Foundations.",
