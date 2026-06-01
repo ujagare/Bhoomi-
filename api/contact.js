@@ -231,11 +231,32 @@ function firstEnv(names) {
     const value = process.env[name];
 
     if (value && String(value).trim()) {
-      return String(value).trim();
+      return cleanEnvValue(value, names);
     }
   }
 
   return "";
+}
+
+function cleanEnvValue(value, names) {
+  let cleaned = String(value).trim();
+
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+
+  for (const name of names) {
+    const prefix = `${name}=`;
+
+    if (cleaned.startsWith(prefix)) {
+      return cleaned.slice(prefix.length).trim();
+    }
+  }
+
+  return cleaned;
 }
 
 function getSupabaseConfig() {
@@ -256,9 +277,8 @@ function getSupabaseConfig() {
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     "VITE_SUPABASE_ANON_KEY",
   ]);
-  const table = String(
-    process.env.SUPABASE_CONTACT_TABLE || "contact_messages",
-  );
+  const table =
+    firstEnv(["SUPABASE_CONTACT_TABLE"]) || "contact_messages";
   const key = serviceRoleKey || publishableKey;
 
   if (!url || !key) {
@@ -268,7 +288,9 @@ function getSupabaseConfig() {
   }
 
   if (!/^[A-Za-z0-9_]+$/.test(table)) {
-    throw new Error("Invalid Supabase contact table name.");
+    throw new Error(
+      "Invalid Supabase contact table name. Set SUPABASE_CONTACT_TABLE to contact_messages.",
+    );
   }
 
   return { url, key, table, usesServiceRole: Boolean(serviceRoleKey) };
