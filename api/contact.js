@@ -296,6 +296,20 @@ function getSupabaseConfig() {
   return { url, key, table, usesServiceRole: Boolean(serviceRoleKey) };
 }
 
+function buildSupabaseHeaders(key) {
+  const headers = {
+    apikey: key,
+    "Content-Type": "application/json",
+    Prefer: "return=minimal",
+  };
+
+  if (key.startsWith("eyJ")) {
+    headers.Authorization = `Bearer ${key}`;
+  }
+
+  return headers;
+}
+
 async function saveContactMessage(submission, req) {
   const config = getSupabaseConfig();
 
@@ -312,12 +326,7 @@ async function saveContactMessage(submission, req) {
     `${config.url}/rest/v1/${encodeURIComponent(config.table)}`,
     {
       method: "POST",
-      headers: {
-        apikey: config.key,
-        Authorization: `Bearer ${config.key}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
+      headers: buildSupabaseHeaders(config.key),
       body: JSON.stringify(payload),
     },
   );
@@ -395,6 +404,7 @@ module.exports = async function contactHandler(req, res) {
     return sendJson(res, 502, {
       ok: false,
       code: error.code || "SUPABASE_SAVE_ERROR",
+      status: error.status || null,
       message: "Contact request could not be saved.",
     });
   }
