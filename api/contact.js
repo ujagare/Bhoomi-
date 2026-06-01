@@ -226,35 +226,56 @@ function buildEmail(submission, req) {
   return payload;
 }
 
+function firstEnv(names) {
+  for (const name of names) {
+    const value = process.env[name];
+
+    if (value && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+
+  return "";
+}
+
 function getSupabaseConfig() {
-  const url = String(process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-  const key = String(
-    process.env.SUPABASE_PUBLISHABLE_KEY ||
-      process.env.SUPABASE_ANON_KEY ||
-      "",
-  );
+  const url = firstEnv([
+    "SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "VITE_SUPABASE_URL",
+  ]).replace(/\/+$/, "");
+  const serviceRoleKey = firstEnv([
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_SECRET_KEY",
+  ]);
+  const publishableKey = firstEnv([
+    "SUPABASE_PUBLISHABLE_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "VITE_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "VITE_SUPABASE_ANON_KEY",
+  ]);
   const table = String(
     process.env.SUPABASE_CONTACT_TABLE || "contact_messages",
   );
+  const key = serviceRoleKey || publishableKey;
 
   if (!url || !key) {
-    return null;
+    throw new Error(
+      "Supabase is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_PUBLISHABLE_KEY in Vercel, then redeploy.",
+    );
   }
 
   if (!/^[A-Za-z0-9_]+$/.test(table)) {
     throw new Error("Invalid Supabase contact table name.");
   }
 
-  return { url, key, table };
+  return { url, key, table, usesServiceRole: Boolean(serviceRoleKey) };
 }
 
 async function saveContactMessage(submission, req) {
   const config = getSupabaseConfig();
-
-  if (!config) {
-    console.warn("Supabase is not configured; skipping contact message save.");
-    return { skipped: true };
-  }
 
   const payload = {
     name: submission.name,
@@ -281,10 +302,15 @@ async function saveContactMessage(submission, req) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Supabase insert failed: ${response.status} ${errorText}`);
+    const error = new Error(`Supabase insert failed: ${response.status}`);
+    error.code = "SUPABASE_INSERT_FAILED";
+    error.status = response.status;
+    error.detail = errorText;
+    console.error("Supabase insert failed:", response.status, errorText);
+    throw error;
   }
 
-  return { skipped: false };
+  return { saved: true };
 }
 
 module.exports = async function contactHandler(req, res) {
@@ -334,9 +360,24 @@ module.exports = async function contactHandler(req, res) {
     return sendJson(res, 400, { ok: false, message: result.error });
   }
 
+  let saveResult;
   try {
-    await saveContactMessage(result.submission, req);
+    saveResult = await saveContactMessage(result.submission, req);
+  } catch (error) {
+    console.error("Contact form save error:", {
+      code: error.code || "SUPABASE_SAVE_ERROR",
+      status: error.status || null,
+      message: error.message,
+      detail: error.detail || null,
+    });
+    return sendJson(res, 502, {
+      ok: false,
+      code: error.code || "SUPABASE_SAVE_ERROR",
+      message: "Contact request could not be saved.",
+    });
+  }
 
+  try {
     const resendResponse = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
@@ -352,15 +393,17 @@ module.exports = async function contactHandler(req, res) {
       console.error("Resend email failed:", resendResponse.status, errorText);
       return sendJson(res, 502, {
         ok: false,
+        code: "EMAIL_SEND_FAILED",
         message: "Email could not be sent.",
       });
     }
 
-    return sendJson(res, 200, { ok: true });
+    return sendJson(res, 200, { ok: true, saved: saveResult.saved });
   } catch (error) {
     console.error("Contact form error:", error);
     return sendJson(res, 502, {
       ok: false,
+      code: "EMAIL_SEND_FAILED",
       message: "Contact request could not be saved or sent.",
     });
   }

@@ -96,7 +96,16 @@
         return () => window.cancelAnimationFrame(animationFrame);
       }
 
-      initPageLoader();
+      function isHomePage() {
+        const path = window.location.pathname.replace(/\/+$/, "");
+        const homePaths = ["", "/", "/index.html"];
+
+        return homePaths.includes(path) || document.querySelector(".hero");
+      }
+
+      if (isHomePage()) {
+        initPageLoader();
+      }
 
       const heroTexts = [
         {
@@ -296,7 +305,10 @@
             const result = await response.json().catch(() => ({}));
 
             if (!response.ok || result.ok !== true) {
-              throw new Error(result.message || "Contact request failed");
+              const error = new Error(result.message || "Contact request failed");
+              error.code = result.code || "CONTACT_REQUEST_FAILED";
+              error.status = response.status;
+              throw error;
             }
 
             contactForm.reset();

@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "node --check assets/js/main.js && node --check api/contact.js",
-    "check": "node --check assets/js/main.js && node --check api/contact.js"
+    "build": "node scripts/generate-google-tags.js && node --check scripts/generate-google-tags.js && node --check assets/js/main.js && node --check api/contact.js",
+    "check": "node --check scripts/generate-google-tags.js && node --check assets/js/main.js && node --check api/contact.js"
   }
 }

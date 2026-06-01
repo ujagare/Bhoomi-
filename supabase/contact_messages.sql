@@ -13,6 +13,7 @@ create table if not exists public.contact_messages (
 alter table public.contact_messages enable row level security;
 
 drop policy if exists "Anyone can submit contact messages" on public.contact_messages;
+drop policy if exists "Authenticated clients can submit contact messages" on public.contact_messages;
 
 create policy "Anyone can submit contact messages"
   on public.contact_messages
@@ -20,6 +21,17 @@ create policy "Anyone can submit contact messages"
   to anon
   with check (true);
 
+create policy "Authenticated clients can submit contact messages"
+  on public.contact_messages
+  for insert
+  to authenticated
+  with check (true);
+
+grant usage on schema public to anon, authenticated;
 grant insert on public.contact_messages to anon;
+grant insert on public.contact_messages to authenticated;
 grant usage on sequence public.contact_messages_id_seq to anon;
+grant usage on sequence public.contact_messages_id_seq to authenticated;
+grant usage on schema public to service_role;
 grant all on public.contact_messages to service_role;
+grant usage on sequence public.contact_messages_id_seq to service_role;
