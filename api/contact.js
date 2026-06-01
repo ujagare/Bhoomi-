@@ -312,24 +312,34 @@ function buildSupabaseHeaders(key) {
 
 async function saveContactMessage(submission, req) {
   const config = getSupabaseConfig();
-
-  const payload = {
+  const endpoint = `${config.url}/rest/v1/${encodeURIComponent(config.table)}`;
+  const basePayload = {
     name: submission.name,
     email: submission.email || null,
     phone: submission.phone,
     service: submission.service,
     message: submission.message,
+  };
+  const payload = {
+    ...basePayload,
     page_url: submission.pageUrl || null,
     user_agent: cleanText(req.headers["user-agent"], 500) || null,
   };
-  const response = await fetch(
-    `${config.url}/rest/v1/${encodeURIComponent(config.table)}`,
-    {
+  let response = await fetch(endpoint, {
+    method: "POST",
+    headers: buildSupabaseHeaders(config.key),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok && response.status === 400) {
+    const firstErrorText = await response.text();
+    console.warn("Supabase insert failed with full payload; retrying minimal payload:", firstErrorText);
+    response = await fetch(endpoint, {
       method: "POST",
       headers: buildSupabaseHeaders(config.key),
-      body: JSON.stringify(payload),
-    },
-  );
+      body: JSON.stringify(basePayload),
+    });
+  }
 
   if (!response.ok) {
     const errorText = await response.text();

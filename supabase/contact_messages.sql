@@ -10,6 +10,12 @@ create table if not exists public.contact_messages (
   created_at timestamptz not null default now()
 );
 
+alter table public.contact_messages
+  add column if not exists email text,
+  add column if not exists page_url text,
+  add column if not exists user_agent text,
+  add column if not exists created_at timestamptz not null default now();
+
 alter table public.contact_messages enable row level security;
 
 drop policy if exists "Anyone can submit contact messages" on public.contact_messages;
