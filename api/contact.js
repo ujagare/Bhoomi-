@@ -163,7 +163,7 @@ function validateSubmission(body) {
   return { submission };
 }
 
-function buildEmail(submission, req) {
+function buildOwnerEmail(submission, req) {
   const recipientEmail = process.env.CONTACT_TO_EMAIL || "info@bhoomigunitingwork.com";
   const fromEmail =
     process.env.RESEND_FROM_EMAIL ||
@@ -179,7 +179,7 @@ function buildEmail(submission, req) {
   const ip = getClientIp(req);
 
   const text = [
-    "New website enquiry",
+    "New Bhoomi Constructions website enquiry",
     "",
     `Name: ${submission.name}`,
     `Email: ${submission.email || "Not provided"}`,
@@ -194,21 +194,26 @@ function buildEmail(submission, req) {
     `IP: ${ip}`,
   ].join("\n");
 
-  const html = `
-    <div style="font-family: Arial, sans-serif; color: #17202a; line-height: 1.5;">
-      <h2 style="margin: 0 0 16px;">New website enquiry</h2>
-      <table cellpadding="8" cellspacing="0" style="border-collapse: collapse;">
-        <tr><td><strong>Name</strong></td><td>${safe.name}</td></tr>
-        <tr><td><strong>Email</strong></td><td>${safe.email || "Not provided"}</td></tr>
-        <tr><td><strong>Phone</strong></td><td>${safe.phone}</td></tr>
-        <tr><td><strong>Service</strong></td><td>${safe.service}</td></tr>
-        <tr><td><strong>Page</strong></td><td>${safe.pageUrl || "Not available"}</td></tr>
-        <tr><td><strong>Submitted at</strong></td><td>${escapeHtml(submittedAt)}</td></tr>
-      </table>
-      <h3 style="margin: 20px 0 8px;">Message</h3>
-      <p style="white-space: pre-wrap; margin: 0;">${escapeHtml(submission.message)}</p>
-    </div>
-  `;
+  const html = buildEmailShell({
+    eyebrow: "New Project Enquiry",
+    title: safe.service,
+    intro: "A new enquiry was submitted through the Bhoomi Constructions website.",
+    body: `
+      ${detailGrid([
+        ["Name", safe.name],
+        ["Phone", safe.phone],
+        ["Email", safe.email || "Not provided"],
+        ["Service", safe.service],
+        ["Page", safe.pageUrl || "Not available"],
+        ["Submitted", escapeHtml(submittedAt)],
+      ])}
+      <div style="margin-top: 24px; padding: 22px; border: 1px solid #e7edf3; border-radius: 14px; background: #f8fafc;">
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: .08em; color: #d21f2b; text-transform: uppercase; margin-bottom: 10px;">Client Message</div>
+        <div style="font-size: 16px; line-height: 1.7; color: #17202a; white-space: pre-wrap;">${escapeHtml(submission.message)}</div>
+      </div>
+      <div style="margin-top: 22px; font-size: 13px; color: #6b7280;">IP: ${escapeHtml(ip)}</div>
+    `,
+  });
 
   const payload = {
     from: fromEmail,
@@ -224,6 +229,127 @@ function buildEmail(submission, req) {
   }
 
   return payload;
+}
+
+function buildAutoReplyEmail(submission) {
+  if (!submission.email) {
+    return null;
+  }
+
+  const fromEmail =
+    process.env.RESEND_FROM_EMAIL ||
+    "Bhoomi Website <website@bhoomigunitingwork.com>";
+  const safe = Object.fromEntries(
+    Object.entries(submission).map(([key, value]) => [key, escapeHtml(value)]),
+  );
+  const text = [
+    `Dear ${submission.name},`,
+    "",
+    "Thank you for contacting Bhoomi Constructions. We have received your enquiry and our team will review it shortly.",
+    "",
+    `Service: ${submission.service}`,
+    `Phone: ${submission.phone}`,
+    "",
+    "For urgent assistance, call 9890174374 or 9561274374.",
+    "",
+    "Regards,",
+    "Bhoomi Constructions",
+  ].join("\n");
+  const html = buildEmailShell({
+    eyebrow: "Enquiry Received",
+    title: `Thank you, ${safe.name}`,
+    intro: "Your enquiry has reached Bhoomi Constructions. Our team will review your requirement and get back to you shortly.",
+    body: `
+      ${detailGrid([
+        ["Service", safe.service],
+        ["Phone", safe.phone],
+        ["Email", safe.email],
+      ])}
+      <div style="margin-top: 24px; padding: 22px; border-radius: 14px; background: #fff7f7; border: 1px solid #ffd7dc;">
+        <div style="font-size: 15px; line-height: 1.7; color: #17202a;">
+          For urgent project assistance, call <strong>9890174374</strong> or <strong>9561274374</strong>.
+        </div>
+      </div>
+    `,
+  });
+
+  return {
+    from: fromEmail,
+    to: [submission.email],
+    subject: "We received your enquiry - Bhoomi Constructions",
+    html,
+    text,
+    tags: [{ name: "source", value: "contact_form_auto_reply" }],
+  };
+}
+
+function detailGrid(items) {
+  return `
+    <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
+      ${items
+        .map(
+          ([label, value]) => `
+            <tr>
+              <td style="width: 34%; padding: 14px 16px; border: 1px solid #e7edf3; border-right: 0; border-radius: 12px 0 0 12px; background: #f8fafc; font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #6b7280; text-transform: uppercase;">${label}</td>
+              <td style="padding: 14px 16px; border: 1px solid #e7edf3; border-left: 0; border-radius: 0 12px 12px 0; background: #ffffff; font-size: 15px; font-weight: 700; color: #17202a;">${value}</td>
+            </tr>
+          `,
+        )
+        .join("")}
+    </table>
+  `;
+}
+
+function buildEmailShell({ eyebrow, title, intro, body }) {
+  return `
+    <div style="margin: 0; padding: 0; background: #eef2f6; font-family: Arial, Helvetica, sans-serif; color: #17202a;">
+      <div style="max-width: 680px; margin: 0 auto; padding: 28px 16px;">
+        <div style="overflow: hidden; border-radius: 22px; background: #ffffff; box-shadow: 0 18px 45px rgba(15, 23, 42, .12);">
+          <div style="padding: 30px 32px; background: #111827;">
+            <div style="font-size: 13px; font-weight: 800; letter-spacing: .12em; color: #ffb4bc; text-transform: uppercase;">${eyebrow}</div>
+            <h1 style="margin: 12px 0 0; font-size: 30px; line-height: 1.18; color: #ffffff;">${title}</h1>
+            <p style="margin: 14px 0 0; font-size: 15px; line-height: 1.7; color: #d8dee9;">${intro}</p>
+          </div>
+          <div style="padding: 30px 32px;">
+            ${body}
+          </div>
+          <div style="padding: 22px 32px; background: #f8fafc; border-top: 1px solid #e7edf3;">
+            <div style="font-size: 18px; font-weight: 800; color: #17202a;">Bhoomi Constructions</div>
+            <div style="margin-top: 8px; font-size: 14px; line-height: 1.7; color: #5b6472;">
+              Guniting Work, Rockfall Protection and Civil Construction<br>
+              29/503 Rambaug Colony, Paud Road, Kothrud, Pune - 411038<br>
+              <strong>Phone:</strong> 9890174374 / 9561274374<br>
+              <strong>Email:</strong> info@bhoomigunitingwork.com
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function sendResendEmail(apiKey, payload, label) {
+  const response = await fetch(RESEND_API_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "User-Agent": "bhoomi-contact-form/1.0",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    const error = new Error(`${label} email could not be sent.`);
+    error.code = "EMAIL_SEND_FAILED";
+    error.status = response.status;
+    error.detail = errorText;
+    console.error(`${label} email failed:`, response.status, errorText);
+    throw error;
+  }
+
+  return response.json().catch(() => ({}));
 }
 
 function firstEnv(names) {
@@ -425,36 +551,26 @@ module.exports = async function contactHandler(req, res) {
   }
 
   try {
-    const resendResponse = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "User-Agent": "bhoomi-contact-form/1.0",
-      },
-      body: JSON.stringify(buildEmail(result.submission, req)),
-    });
+    await sendResendEmail(apiKey, buildOwnerEmail(result.submission, req), "Owner notification");
 
-    if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error("Resend email failed:", resendResponse.status, errorText);
-      return sendJson(res, 502, {
-        ok: false,
-        code: "EMAIL_SEND_FAILED",
-        message: "Email could not be sent.",
-      });
+    let autoReplySent = false;
+    const autoReplyPayload = buildAutoReplyEmail(result.submission);
+    if (autoReplyPayload) {
+      await sendResendEmail(apiKey, autoReplyPayload, "Auto-reply");
+      autoReplySent = true;
     }
 
     return sendJson(res, 200, {
       ok: true,
       saved: saveResult.saved,
       contactMessageId: saveResult.id,
+      autoReplySent,
     });
   } catch (error) {
     console.error("Contact form error:", error);
     return sendJson(res, 502, {
       ok: false,
-      code: "EMAIL_SEND_FAILED",
+      code: error.code || "EMAIL_SEND_FAILED",
       message: "Contact request could not be saved or sent.",
     });
   }
