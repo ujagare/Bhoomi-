@@ -355,9 +355,19 @@
         gsap.registerPlugin(ScrollTrigger);
 
         const mm = gsap.matchMedia();
+        const aboutIntroStaticSelector = [
+          ".about-intro .about-copy-panel > *",
+          ".about-intro .about-feature > *",
+        ].join(", ");
+
+        function isAboutIntroStatic(item) {
+          return item.matches(aboutIntroStaticSelector);
+        }
 
         function revealGroup(selector, options = {}) {
-          const items = gsap.utils.toArray(selector);
+          const items = gsap.utils
+            .toArray(selector)
+            .filter((item) => !isAboutIntroStatic(item));
 
           if (!items.length) {
             return;
@@ -401,7 +411,10 @@
         }
 
         function imageReveal(selector, options = {}) {
-          gsap.utils.toArray(selector).forEach((image) => {
+          gsap.utils
+            .toArray(selector)
+            .filter((image) => !image.closest(".about-intro"))
+            .forEach((image) => {
             gsap.from(image, {
               autoAlpha: 0,
               clipPath: "inset(12% 10% 12% 10%)",
@@ -415,6 +428,13 @@
                 toggleActions: "play none none reverse",
               },
             });
+          });
+        }
+
+        if (document.querySelector(".about-intro")) {
+          gsap.set(aboutIntroStaticSelector, {
+            autoAlpha: 1,
+            clearProps: "transform,opacity,visibility,clipPath",
           });
         }
 
