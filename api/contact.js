@@ -297,17 +297,12 @@ function getSupabaseConfig() {
 }
 
 function buildSupabaseHeaders(key) {
-  const headers = {
+  return {
     apikey: key,
+    Authorization: `Bearer ${key}`,
     "Content-Type": "application/json",
-    Prefer: "return=minimal",
+    Prefer: "return=representation",
   };
-
-  if (key.startsWith("eyJ")) {
-    headers.Authorization = `Bearer ${key}`;
-  }
-
-  return headers;
 }
 
 async function saveContactMessage(submission, req) {
@@ -351,7 +346,17 @@ async function saveContactMessage(submission, req) {
     throw error;
   }
 
-  return { saved: true };
+  const rows = await response.json().catch(() => []);
+  const savedRow = Array.isArray(rows) ? rows[0] : null;
+
+  if (!savedRow || !savedRow.id) {
+    const error = new Error("Supabase insert did not return a saved row.");
+    error.code = "SUPABASE_INSERT_NOT_CONFIRMED";
+    console.error("Supabase insert did not return a saved row:", rows);
+    throw error;
+  }
+
+  return { saved: true, id: savedRow.id };
 }
 
 module.exports = async function contactHandler(req, res) {
@@ -440,7 +445,11 @@ module.exports = async function contactHandler(req, res) {
       });
     }
 
-    return sendJson(res, 200, { ok: true, saved: saveResult.saved });
+    return sendJson(res, 200, {
+      ok: true,
+      saved: saveResult.saved,
+      contactMessageId: saveResult.id,
+    });
   } catch (error) {
     console.error("Contact form error:", error);
     return sendJson(res, 502, {

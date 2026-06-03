@@ -35,17 +35,17 @@ The contact form submits to the serverless endpoint at `api/contact.js`, saves e
    - `RESEND_FROM_EMAIL` such as `Bhoomi Website <website@bhoomigunitingwork.com>`
    - `CONTACT_TO_EMAIL` as `info@bhoomigunitingwork.com`
    - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY` for server-side inserts, or `SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` for server-side inserts
    - `SUPABASE_CONTACT_TABLE` as `contact_messages`
 6. Keep the Build Command as `npm run build`.
 7. Submit the form from `contact.html` and confirm the enquiry appears in Supabase and arrives at `info@bhoomigunitingwork.com`.
 
 The API route validates required fields, keeps a honeypot spam field, rate-limits repeated submissions per server instance, saves the enquiry before sending email, and sets the visitor's email as `reply_to` when provided.
 
-If email sends but Supabase has no new row, check the latest Vercel deployment has these exact Production env vars and redeploy after saving them:
+If email sends but Supabase has no new row, check the latest Vercel deployment has these exact Production env vars and redeploy after saving them. The API now confirms the inserted Supabase row before returning success, so a missing row usually means the live deployment is stale or pointed at a different Supabase project/table:
 
 - `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` for server-side contact form inserts, or `SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` for server-side contact form inserts
 - `SUPABASE_CONTACT_TABLE`
 
 Also rerun `supabase/contact_messages.sql` in the Supabase SQL Editor so the table has RLS, insert policy, and Data API grants.
@@ -64,7 +64,7 @@ Add these Environment Variables for Production and Preview:
 - `RESEND_FROM_EMAIL`
 - `CONTACT_TO_EMAIL`
 - `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_CONTACT_TABLE`
 - `GOOGLE_SITE_VERIFICATION`
 - `GOOGLE_TAG_MANAGER_ID`
