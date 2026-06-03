@@ -3,6 +3,23 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/gallary.html",
+      "destination": "/gallery.html",
+      "permanent": true
+    },
+    {
+      "source": "/gallary",
+      "destination": "/gallery.html",
+      "permanent": true
+    },
+    {
+      "source": "/gallery",
+      "destination": "/gallery.html",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

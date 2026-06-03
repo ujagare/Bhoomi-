@@ -7,7 +7,13 @@ Bhoomi construction and rockfall protection homepage.
 ```text
 .
 |-- index.html
+|-- gallery.html
 |-- gallary.html
+|-- guniting-work.html
+|-- rockfall-protection.html
+|-- slope-stabilization.html
+|-- rock-anchoring.html
+|-- bungalow-construction.html
 |-- project.html
 |-- assets/
 |   |-- css/

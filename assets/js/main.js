@@ -204,8 +204,13 @@
       const menuClose = document.querySelector(".menu-close");
       const mobileMenu = document.querySelector("#mobileMenu");
       const mobileMenuLinks = document.querySelectorAll(".mobile-menu a");
+      const hasMobileMenu = menuToggle && menuClose && mobileMenu;
 
       function closeMobileMenu() {
+        if (!hasMobileMenu) {
+          return;
+        }
+
         menuToggle.setAttribute("aria-expanded", "false");
         mobileMenu.setAttribute("aria-hidden", "true");
         mobileMenu.classList.remove("is-open");
@@ -213,34 +218,40 @@
       }
 
       function openMobileMenu() {
+        if (!hasMobileMenu) {
+          return;
+        }
+
         menuToggle.setAttribute("aria-expanded", "true");
         mobileMenu.setAttribute("aria-hidden", "false");
         mobileMenu.classList.add("is-open");
         document.body.classList.add("menu-open");
       }
 
-      menuToggle.addEventListener("click", () => {
-        if (mobileMenu.classList.contains("is-open")) {
-          closeMobileMenu();
-        } else {
-          openMobileMenu();
-        }
-      });
+      if (hasMobileMenu) {
+        menuToggle.addEventListener("click", () => {
+          if (mobileMenu.classList.contains("is-open")) {
+            closeMobileMenu();
+          } else {
+            openMobileMenu();
+          }
+        });
 
-      menuClose.addEventListener("click", closeMobileMenu);
-      mobileMenuLinks.forEach((link) =>
-        link.addEventListener("click", closeMobileMenu),
-      );
-      mobileMenu.addEventListener("click", (event) => {
-        if (event.target === mobileMenu) {
-          closeMobileMenu();
-        }
-      });
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          closeMobileMenu();
-        }
-      });
+        menuClose.addEventListener("click", closeMobileMenu);
+        mobileMenuLinks.forEach((link) =>
+          link.addEventListener("click", closeMobileMenu),
+        );
+        mobileMenu.addEventListener("click", (event) => {
+          if (event.target === mobileMenu) {
+            closeMobileMenu();
+          }
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeMobileMenu();
+          }
+        });
+      }
 
       const contactForm = document.querySelector(".contact-form");
 
