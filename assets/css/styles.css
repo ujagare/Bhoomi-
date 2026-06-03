@@ -7373,18 +7373,35 @@ h2 {
 
 .about-intro .about-copy .section-kicker {
   color: #8d1f2a;
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
 }
 
 .about-intro .about-copy h2 {
   color: #111820;
+  opacity: 1 !important;
   position: relative;
+  transform: none !important;
+  visibility: visible !important;
   z-index: 1;
 }
 
 .about-intro .about-copy p:not(.section-kicker) {
   color: #2d333a;
+  opacity: 1 !important;
   position: relative;
+  transform: none !important;
+  visibility: visible !important;
   z-index: 1;
+}
+
+.about-intro .about-feature > img,
+.about-intro .about-feature > figcaption,
+.about-intro .about-service-list article {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
 }
 
 .about-intro .about-proof {
