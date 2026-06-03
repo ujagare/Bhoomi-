@@ -7753,7 +7753,7 @@ h2 {
   background: #71202a;
   border-radius: 50%;
   color: var(--white);
-  content: "\\2713";
+  content: "✓";
   display: inline-flex;
   flex: 0 0 18px;
   font-size: 12px;
