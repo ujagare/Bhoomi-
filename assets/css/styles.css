@@ -7349,6 +7349,18 @@ h2 {
 }
 
 /* Balance About intro left column */
+.about-strengths strong {
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+}
+
+.about-strengths p {
+  color: #f8e3e6;
+  position: relative;
+  z-index: 1;
+}
+
 .about-intro .about-copy-panel {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 249, 0.92));
@@ -7357,6 +7369,22 @@ h2 {
   box-shadow: 0 18px 46px rgba(18, 20, 22, 0.08);
   height: 100%;
   padding: clamp(24px, 2.5vw, 34px);
+}
+
+.about-intro .about-copy .section-kicker {
+  color: #8d1f2a;
+}
+
+.about-intro .about-copy h2 {
+  color: #111820;
+  position: relative;
+  z-index: 1;
+}
+
+.about-intro .about-copy p:not(.section-kicker) {
+  color: #2d333a;
+  position: relative;
+  z-index: 1;
 }
 
 .about-intro .about-proof {
